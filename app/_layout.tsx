@@ -1,12 +1,15 @@
 import Colors from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-
+import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { useFonts } from "expo-font";
-import { Stack, router } from "expo-router";
+import { Stack, router, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import * as SecureStore from "expo-secure-store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export {
 	// Catch any errors thrown by the Layout component.
@@ -21,11 +24,33 @@ export const unstable_settings = {
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function InitialLayout() {
+function InitialLayout() {
 	const [loaded, error] = useFonts({
 		SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
 		...FontAwesome.font,
 	});
+
+	// const { isLoaded, isSignedIn } = useAuth();
+	const router = useRouter();
+	const [isSignedIn, setIsSignedIn] = useState(false);
+
+	const getAuthUser = async () => {
+		try {
+			const jsonValue = await AsyncStorage.getItem("my-key");
+
+			// jsonValue != null ? JSON.parse(jsonValue) : null;
+			if (jsonValue != null) {
+				const user = JSON.parse(jsonValue);
+				setIsSignedIn(true);
+				router.push(`/(authenticated)/(tabs)/home`);
+			} else {
+				setIsSignedIn(false);
+			}
+		} catch (e) {
+			// error reading value
+			setIsSignedIn(false);
+		}
+	};
 
 	// Expo Router uses Error Boundaries to catch errors in the navigation tree.
 	useEffect(() => {
@@ -35,6 +60,18 @@ export default function InitialLayout() {
 	useEffect(() => {
 		if (loaded) {
 			SplashScreen.hideAsync();
+			getAuthUser();
+		}
+	}, [loaded]);
+
+	useEffect(() => {
+		console.log("IsSigned in", isSignedIn);
+		if (loaded) {
+			if (isSignedIn) {
+				router.replace(`/(authenticated)/(tabs)/home`);
+			} else {
+				router.replace("/");
+			}
 		}
 	}, [loaded]);
 
@@ -98,14 +135,40 @@ export default function InitialLayout() {
 					),
 				}}
 			/>
+			<Stack.Screen
+				name="verify/[phone]"
+				options={{
+					title: "",
+					headerBackTitle: " ",
+					headerShadowVisible: false,
+					headerStyle: {
+						backgroundColor: Colors.background,
+					},
+					headerLeft: () => (
+						<TouchableOpacity
+							onPress={() => {
+								router.back();
+							}}
+						>
+							<Ionicons
+								name="arrow-back"
+								size={34}
+								color={Colors.primary}
+							/>
+						</TouchableOpacity>
+					),
+				}}
+			/>
 		</Stack>
 	);
 }
 
-function RootLayoutNav() {
+const RootLayoutNav = () => {
 	return (
-		<>
+		<GestureHandlerRootView style={{ flex: 1 }}>
 			<InitialLayout />
-		</>
+		</GestureHandlerRootView>
 	);
-}
+};
+
+export default RootLayoutNav;
