@@ -136,27 +136,9 @@ function InitialLayout() {
 				}}
 			/>
 			<Stack.Screen
-				name="verify/[phone]"
+				name="(authenticated)/(tabs)"
 				options={{
-					title: "",
-					headerBackTitle: " ",
-					headerShadowVisible: false,
-					headerStyle: {
-						backgroundColor: Colors.background,
-					},
-					headerLeft: () => (
-						<TouchableOpacity
-							onPress={() => {
-								router.back();
-							}}
-						>
-							<Ionicons
-								name="arrow-back"
-								size={34}
-								color={Colors.primary}
-							/>
-						</TouchableOpacity>
-					),
+					headerShown: false,
 				}}
 			/>
 		</Stack>
