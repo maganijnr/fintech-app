@@ -1,15 +1,16 @@
 import Colors from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { useFonts } from "expo-font";
 import { Stack, router, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import * as SecureStore from "expo-secure-store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 export {
 	// Catch any errors thrown by the Layout component.
@@ -141,6 +142,41 @@ function InitialLayout() {
 					headerShown: false,
 				}}
 			/>
+			<Stack.Screen
+				name="(authenticated)/crypto/[coinId]"
+				options={{
+					title: "",
+					headerLeft: () => (
+						<TouchableOpacity onPress={router.back}>
+							<Ionicons
+								name="arrow-back"
+								size={34}
+								color={Colors.dark}
+							/>
+						</TouchableOpacity>
+					),
+					headerLargeTitle: true,
+					headerTransparent: true,
+					headerRight: () => (
+						<View style={{ flexDirection: "row", gap: 10 }}>
+							<TouchableOpacity>
+								<Ionicons
+									name="notifications-outline"
+									color={Colors.dark}
+									size={30}
+								/>
+							</TouchableOpacity>
+							<TouchableOpacity>
+								<Ionicons
+									name="star-outline"
+									color={Colors.dark}
+									size={30}
+								/>
+							</TouchableOpacity>
+						</View>
+					),
+				}}
+			/>
 		</Stack>
 	);
 }
@@ -148,7 +184,9 @@ function InitialLayout() {
 const RootLayoutNav = () => {
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
-			<InitialLayout />
+			<QueryClientProvider client={queryClient}>
+				<InitialLayout />
+			</QueryClientProvider>
 		</GestureHandlerRootView>
 	);
 };

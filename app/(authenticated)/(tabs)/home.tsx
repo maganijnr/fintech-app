@@ -32,6 +32,9 @@ const Page = () => {
 		<ScrollView
 			style={[defaultStyles.container, { flex: 1 }]}
 			showsVerticalScrollIndicator={false}
+			contentContainerStyle={{
+				paddingBottom: 80,
+			}}
 		>
 			<View style={styles.balanceContainer}>
 				<View
@@ -132,9 +135,6 @@ const Page = () => {
 						</>
 					)}
 				</View>
-			</View>
-			<View style={{ flex: 1, marginTop: 20 }}>
-				<Text>Hello</Text>
 			</View>
 		</ScrollView>
 	);
